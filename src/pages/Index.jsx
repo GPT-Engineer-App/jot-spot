@@ -1,17 +1,53 @@
-// Update this page (the content is just a fallback if you fail and example)
-// Use chakra-ui
-import { Container, Text, VStack } from "@chakra-ui/react";
+import { useState } from 'react';
+import { Box, Button, Container, Flex, IconButton, Input, Text, VStack } from '@chakra-ui/react';
+import { FaPlus, FaTrash, FaEdit } from 'react-icons/fa';
 
-// Example of using react-icons
-// import { FaRocket } from "react-icons/fa";
-// <IconButton aria-label="Add" icon={<FaRocket />} size="lg" />; // IconButton would also have to be imported from chakra
+const Note = ({ note, onDelete, onEdit }) => (
+  <Flex p={4} boxShadow="md" borderRadius="lg" alignItems="center" justifyContent="space-between">
+    <Text>{note.text}</Text>
+    <Box>
+      <IconButton aria-label="Edit note" icon={<FaEdit />} onClick={() => onEdit(note)} m={1} />
+      <IconButton aria-label="Delete note" icon={<FaTrash />} onClick={() => onDelete(note.id)} m={1} />
+    </Box>
+  </Flex>
+);
 
 const Index = () => {
+  const [notes, setNotes] = useState([]);
+  const [input, setInput] = useState('');
+
+  const handleAddNote = () => {
+    if (input.trim()) {
+      const newNote = { id: Date.now(), text: input };
+      setNotes([...notes, newNote]);
+      setInput('');
+    }
+  };
+
+  const handleDeleteNote = (id) => {
+    setNotes(notes.filter(note => note.id !== id));
+  };
+
+  const handleEditNote = (editedNote) => {
+    const updatedNotes = notes.map(note => {
+      if (note.id === editedNote.id) {
+        return { ...note, text: editedNote.text };
+      }
+      return note;
+    });
+    setNotes(updatedNotes);
+  };
+
   return (
-    <Container centerContent maxW="container.md" height="100vh" display="flex" flexDirection="column" justifyContent="center" alignItems="center">
-      <VStack spacing={4}>
-        <Text fontSize="2xl">Your Blank Canvas</Text>
-        <Text>Chat with the agent to start making edits.</Text>
+    <Container maxW="container.md" p={4}>
+      <VStack spacing={4} align="stretch">
+        <Flex justifyContent="space-between" alignItems="center">
+          <Input placeholder="Add a new note..." value={input} onChange={(e) => setInput(e.target.value)} />
+          <IconButton aria-label="Add note" icon={<FaPlus />} onClick={handleAddNote} />
+        </Flex>
+        {notes.map(note => (
+          <Note key={note.id} note={note} onDelete={handleDeleteNote} onEdit={handleEditNote} />
+        ))}
       </VStack>
     </Container>
   );
